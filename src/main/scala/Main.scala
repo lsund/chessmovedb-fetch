@@ -35,18 +35,18 @@ class Producer {
 
 object Main extends App {
   val gameid = "q6NY3GkB"
-  val apiToken: String = "pass lichess/api-token".!!.trim
-  val authorizationHeaderValue: String = "Bearer " + apiToken
-  val request: HttpRequest = Http("https://lichess.org/game/export/" + gameid)
-    .header("Authorization", authorizationHeaderValue)
-  val response: HttpResponse[String] = request.asString
+  // val apiToken: String = "pass lichess/api-token".!!.trim
+  // val authorizationHeaderValue: String = "Bearer " + apiToken
+  // val request: HttpRequest = Http("https://lichess.org/game/export/" + gameid)
+  //   .header("Authorization", authorizationHeaderValue)
+  // val response: HttpResponse[String] = request.asString
   val dataDir = "data".toFile.createIfNotExists(true)
   val pgnFile = "data/" + gameid + ".pgn"
   val outfile = "data/" + gameid + ".json"
-  Files.write(
-    Paths.get(pgnFile),
-    response.body.getBytes(StandardCharsets.UTF_8)
-  )
+  // Files.write(
+  //   Paths.get(pgnFile),
+  //   response.body.getBytes(StandardCharsets.UTF_8)
+  // )
   val json = RunParser.toJson(pgnFile)
   val producer = new Producer
   producer.writeToKafka("test", "testkey", json)
