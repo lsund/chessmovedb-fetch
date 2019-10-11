@@ -49,5 +49,5 @@ object Main extends App {
   // )
   val json = RunParser.toJson(pgnFile)
   val producer = new Producer
-  producer.writeToKafka("test", "testkey", json)
+  producer.writeToKafka("game", gameid, json)
 }
