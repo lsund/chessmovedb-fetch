@@ -41,12 +41,11 @@ object Main extends App {
     .header("Authorization", authorizationHeaderValue)
   val response: HttpResponse[String] = request.asString
   val dataDir = "data".toFile.createIfNotExists(true)
+  val pgnFile = "data/" + gameid + ".pgn"
+  val outfile = "data/" + gameid + ".json"
   Files.write(
-    Paths.get("data/" + gameid + ".pgn"),
+    Paths.get(pgnFile),
     response.body.getBytes(StandardCharsets.UTF_8)
   )
-  val foo = RunParser
-  foo.main(Array())
-  // val prod = new Producer
-  // prod.writeToKafka("test", "key", )
+  RunParser.toJson(pgnFile)
 }
