@@ -1,7 +1,7 @@
 scalaVersion := "2.13.1"
-name := "hello-world"
-organization := "ch.epfl.scala"
-version := "1.0"
+name := "gamefetcher"
+organization := "com.github.lsund"
+version := "1.0.0"
 
 // Dependencies
 libraryDependencies += "org.typelevel" %% "cats-core" % "2.0.0"
