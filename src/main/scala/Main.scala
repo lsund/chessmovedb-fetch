@@ -8,8 +8,19 @@ import com.github.lsund.pgnparser._
 import better.files._, better.files.File._
 import org.apache.kafka.clients.producer._
 
-class Producer {
-  def writeToKafka(topic: String, key: String, value: String): Unit = {
+class Message(key: String, value: String) {
+  // TODO there must be a better way to do a record
+  def key(): String = {
+    return key
+  }
+  def value(): String = {
+    return value
+  }
+}
+
+object Main extends App {
+
+  def makeKafkaProducer(): KafkaProducer[String, String] = {
     val props = new Properties()
     props.put("bootstrap.servers", "localhost:9092")
     props.put(
@@ -20,8 +31,16 @@ class Producer {
       "value.serializer",
       "org.apache.kafka.common.serialization.StringSerializer"
     )
-    val producer = new KafkaProducer[String, String](props)
-    val record = new ProducerRecord[String, String](topic, key, value)
+    return new KafkaProducer[String, String](props)
+  }
+
+  def produceMessage(
+      producer: KafkaProducer[String, String],
+      topic: String,
+      message: Message
+  ): Unit = {
+    val record =
+      new ProducerRecord[String, String](topic, message.key(), message.value())
     try {
       producer.send(record)
     } catch {
@@ -31,9 +50,7 @@ class Producer {
     }
     producer.close()
   }
-}
 
-object Main extends App {
   val gameid = "q6NY3GkB"
   // val apiToken: String = "pass lichess/api-token".!!.trim
   // val authorizationHeaderValue: String = "Bearer " + apiToken
@@ -48,6 +65,6 @@ object Main extends App {
   //   response.body.getBytes(StandardCharsets.UTF_8)
   // )
   val json = ParseRunner.generateJson(pgnFile)
-  val producer = new Producer
-  producer.writeToKafka("game", gameid, json)
+  val producer = makeKafkaProducer()
+  produceMessage(producer, "game", new Message(gameid, json))
 }
