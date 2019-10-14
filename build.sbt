@@ -1,5 +1,5 @@
 scalaVersion := "2.12.10"
-name := "gamefetcher"
+name := "chessmovedb-gamefetcher"
 organization := "com.github.lsund"
 version := "1.0.0"
 
