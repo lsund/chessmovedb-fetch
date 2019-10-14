@@ -8,15 +8,7 @@ import com.github.lsund.pgnparser._
 import better.files._, better.files.File._
 import org.apache.kafka.clients.producer._
 
-class Message(key: String, value: String) {
-  // TODO there must be a better way to do a record
-  def key(): String = {
-    return key
-  }
-  def value(): String = {
-    return value
-  }
-}
+case class Message(key: String, value: String) {}
 
 object Main extends App {
 
@@ -40,7 +32,7 @@ object Main extends App {
       message: Message
   ): Unit = {
     val record =
-      new ProducerRecord[String, String](topic, message.key(), message.value())
+      new ProducerRecord[String, String](topic, message.key, message.value)
     try {
       producer.send(record)
     } catch {
@@ -66,5 +58,5 @@ object Main extends App {
   // )
   val json = ParseRunner.generateJson(pgnFile)
   val producer = makeKafkaProducer()
-  produceMessage(producer, "game", new Message(gameid, json))
+  produceMessage(producer, "game", Message(gameid, json))
 }
