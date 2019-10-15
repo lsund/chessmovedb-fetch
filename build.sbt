@@ -1,5 +1,5 @@
 scalaVersion := "2.12.10"
-name := "chessmovedb-gamefetcher"
+name := "chessmovedb-fetch"
 organization := "com.github.lsund"
 version := "1.0.0"
 
@@ -9,4 +9,4 @@ libraryDependencies += "org.scalaj" %% "scalaj-http" % "2.4.2"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
 libraryDependencies += "org.apache.kafka" %% "kafka" % "2.3.0"
 
-libraryDependencies += "com.github.lsund" % "pgnparser" % "1.0.0" from "file:///home/lsund/Documents/git/pgnparser/target/scala-2.12/pgnparser-assembly-1.0.0.jar"
+libraryDependencies += "com.github.lsund" % "pgnparser" % "1.0.0"

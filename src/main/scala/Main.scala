@@ -1,4 +1,4 @@
-package com.github.lsund.chessmovedb_gamefetcher
+package com.github.lsund.chessmovedb_fetch
 
 import java.util.Properties
 import scalaj.http._
