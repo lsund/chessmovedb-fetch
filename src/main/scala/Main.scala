@@ -13,7 +13,7 @@ import com.typesafe.scalalogging._
 
 object Main extends App {
 
-  val logger = Logger("fetch")
+  val logger = Logger("chessmovedb-fetch")
 
   def makeKafkaProducer(): KafkaProducer[String, String] = {
     val props = new Properties()
