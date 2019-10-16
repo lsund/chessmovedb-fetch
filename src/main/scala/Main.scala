@@ -9,8 +9,11 @@ import io.circe._, io.circe.generic.auto._
 import io.circe.parser._, io.circe.syntax._
 import better.files._, better.files.File._
 import org.apache.kafka.clients.producer._
+import com.typesafe.scalalogging._
 
 object Main extends App {
+
+  val logger = Logger("fetch")
 
   def makeKafkaProducer(): KafkaProducer[String, String] = {
     val props = new Properties()
@@ -73,7 +76,7 @@ object Main extends App {
         produceMessage(producer, "game", gameid, response.body)
         finished = true
       }
-      println("waiting...")
+      logger.info("waiting...")
       Thread.sleep(30000)
     }
   }
@@ -81,13 +84,15 @@ object Main extends App {
   val apiToken = "pass lichess/api-token".!!.trim
   while (true) {
     val gameid = getId(apiToken)
-    println("Waiting to download game at: https://lichess.org/" + gameid)
+    logger.info(
+      "Waiting to download game with URL: https://lichess.org/" + gameid
+    )
     try {
       getGame(gameid)
-      println("Game finished and downloaded")
+      logger.info("Game finished and downloaded")
     } catch {
       case e: SocketTimeoutException => {
-        println("Socket timed out, trying again...")
+        logger.info("Socket timed out, trying again...")
       }
     }
     Thread.sleep(10000)
