@@ -60,13 +60,28 @@ object Main extends App {
     }
   }
 
+  def getGame(gameid: String) {
+    var finished = false
+    while (!finished) {
+      Thread.sleep(10000)
+      val response = Http("https://lichess.org/game/export/" + gameid)
+        .header("Authorization", "Bearer " + apiToken)
+        .header("Accept", "application/json")
+        .asString
+      if (response.code == 200) {
+        val producer = makeKafkaProducer()
+        produceMessage(producer, "game", gameid, response.body)
+        finished = true
+      }
+      println("waiting...")
+    }
+  }
+
   val apiToken = "pass lichess/api-token".!!.trim
-  val gameid = getId(apiToken)
-  val response = Http("https://lichess.org/game/export/" + gameid)
-    .header("Authorization", "Bearer " + apiToken)
-    .header("Accept", "application/json")
-    .asString
-    .body
-  val producer = makeKafkaProducer()
-  produceMessage(producer, "game", gameid, response)
+  while (true) {
+    val gameid = getId(apiToken)
+    println("Getting game with id: " + gameid)
+    getGame(gameid)
+    Thread.sleep(10000)
+  }
 }
