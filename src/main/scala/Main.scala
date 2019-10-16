@@ -81,9 +81,10 @@ object Main extends App {
   val apiToken = "pass lichess/api-token".!!.trim
   while (true) {
     val gameid = getId(apiToken)
-    println("Getting game with id: " + gameid)
+    println("Waiting to download game at: https://lichess.org/" + gameid)
     try {
       getGame(gameid)
+      println("Game finished and downloaded")
     } catch {
       case e: SocketTimeoutException => {
         println("Socket timed out, trying again...")
