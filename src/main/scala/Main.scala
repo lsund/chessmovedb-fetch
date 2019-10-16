@@ -1,5 +1,6 @@
 package com.github.lsund.chessmovedb_fetch
 
+import java.net.SocketTimeoutException
 import java.util.Properties
 import scalaj.http._
 import scala.sys.process._
@@ -63,7 +64,6 @@ object Main extends App {
   def getGame(gameid: String) {
     var finished = false
     while (!finished) {
-      Thread.sleep(10000)
       val response = Http("https://lichess.org/game/export/" + gameid)
         .header("Authorization", "Bearer " + apiToken)
         .header("Accept", "application/json")
@@ -74,6 +74,7 @@ object Main extends App {
         finished = true
       }
       println("waiting...")
+      Thread.sleep(30000)
     }
   }
 
@@ -81,7 +82,13 @@ object Main extends App {
   while (true) {
     val gameid = getId(apiToken)
     println("Getting game with id: " + gameid)
-    getGame(gameid)
+    try {
+      getGame(gameid)
+    } catch {
+      case e: SocketTimeoutException => {
+        println("Socket timed out, trying again...")
+      }
+    }
     Thread.sleep(10000)
   }
 }
