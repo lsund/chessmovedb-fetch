@@ -4,7 +4,8 @@ import java.util.Properties
 import scalaj.http._
 import scala.sys.process._
 import java.nio.file.{Paths, Files}, java.nio.charset.StandardCharsets
-import com.github.lsund.pgnparser._
+import io.circe._, io.circe.generic.auto._
+import io.circe.parser._, io.circe.syntax._
 import better.files._, better.files.File._
 import org.apache.kafka.clients.producer._
 
@@ -27,10 +28,11 @@ object Main extends App {
   def produceMessage(
       producer: KafkaProducer[String, String],
       topic: String,
-      message: String
+      key: String,
+      value: String
   ): Unit = {
     val record =
-      new ProducerRecord[String, String](topic, message)
+      new ProducerRecord[String, String](topic, key, value)
     try {
       producer.send(record)
     } catch {
@@ -41,20 +43,30 @@ object Main extends App {
     producer.close()
   }
 
-  val gameid = "q6NY3GkB"
-  val apiToken: String = "pass lichess/api-token".!!.trim
-  val authorizationHeaderValue: String = "Bearer " + apiToken
-  val request: HttpRequest = Http("https://lichess.org/game/export/" + gameid)
-    .header("Authorization", authorizationHeaderValue)
-  val response: HttpResponse[String] = request.asString
-  val dataDir = "data".toFile.createIfNotExists(true)
-  val pgnFile = "data/" + gameid + ".pgn"
-  val outfile = "data/" + gameid + ".json"
-  Files.write(
-    Paths.get(pgnFile),
-    response.body.getBytes(StandardCharsets.UTF_8)
-  )
-  val json = ParseRunner.generateJson(pgnFile)
+  def getId(apiToken: String): String = {
+    val response = Http("https://lichess.org/tv/channels")
+      .header("Authorization", "Bearer " + apiToken)
+      .header("Accept", "application/json")
+      .asString
+      .body
+    parse(response)
+      .getOrElse(Json.Null)
+      .hcursor
+      .downField("Top Rated")
+      .downField("gameId")
+      .as[String] match {
+      case Right(x) => return x
+      case Left(e)  => throw new Exception(e)
+    }
+  }
+
+  val apiToken = "pass lichess/api-token".!!.trim
+  val gameid = getId(apiToken)
+  val response = Http("https://lichess.org/game/export/" + gameid)
+    .header("Authorization", "Bearer " + apiToken)
+    .header("Accept", "application/json")
+    .asString
+    .body
   val producer = makeKafkaProducer()
-  produceMessage(producer, "game", json)
+  produceMessage(producer, "game", gameid, response)
 }
