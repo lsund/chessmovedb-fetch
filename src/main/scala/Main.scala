@@ -47,7 +47,7 @@ object Main extends App {
     producer.close()
   }
 
-  def getId(apiToken: String): String = {
+  def getGameId(apiToken: String): String = {
     val response = Http("https://lichess.org/tv/channels")
       .header("Authorization", "Bearer " + apiToken)
       .header("Accept", "application/json")
@@ -82,8 +82,9 @@ object Main extends App {
   }
 
   val apiToken = "pass lichess/api-token".!!.trim
+
   while (true) {
-    val gameid = getId(apiToken)
+    val gameid = getGameId(apiToken)
     logger.info(
       "Waiting to download game with URL: https://lichess.org/" + gameid
     )
@@ -92,7 +93,7 @@ object Main extends App {
       logger.info("Game finished and downloaded")
     } catch {
       case e: SocketTimeoutException => {
-        logger.info("Socket timed out, trying again...")
+        logger.error("Socket timed out, trying again...")
       }
     }
     Thread.sleep(10000)
